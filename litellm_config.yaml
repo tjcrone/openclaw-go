@@ -1,0 +1,53 @@
+model_list:
+  # primary brain (DeepSeek R1 via OpenRouter)
+  # Good reasoning + creativity at ~$2.74/M tokens
+  - model_name: brain
+    litellm_params:
+      model: openrouter/deepseek/deepseek-r1
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  # coding model (Gemini 2.5 Flash)
+  # Fast, capable coder at $0.15/$0.60 per M tokens
+  - model_name: coder
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  # heartbeat (Gemini 2.5 Flash-Lite)
+  # Ultra-cheap at $0.075/$0.30 per M tokens (free tier available)
+  - model_name: cheap
+    litellm_params:
+      model: gemini/gemini-2.5-flash-lite
+      api_key: os.environ/GEMINI_API_KEY
+
+  # fallback brain (Gemini 2.5 Flash)
+  - model_name: brain-fallback
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  # lightweight brain (Gemini 2.5 Flash with reasoning)
+  - model_name: brain-lite
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  # perplexity researcher (Perplexity via OpenRouter)
+  - model_name: researcher
+    litellm_params:
+      model: openrouter/perplexity/sonar
+      api_key: os.environ/OPENROUTER_API_KEY
+
+litellm_settings:
+  drop_params: true
+  fallbacks:
+    - brain: ["brain-fallback"]
+  num_retries: 2
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  timeout: 120
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
