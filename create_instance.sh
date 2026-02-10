@@ -10,7 +10,6 @@ source settings.conf
 
 # copy scripts to bucket
 gcloud storage cp ./install_openclaw.sh gs://$BUCKET_NAME
-gcloud storage cp ./configure_openclaw.sh gs://$BUCKET_NAME
 gcloud storage cp ./$SETUP_SCRIPT gs://$BUCKET_NAME
 gcloud storage cp ./.bashrc gs://$BUCKET_NAME
 gcloud storage cp ./.vimrc gs://$BUCKET_NAME

@@ -22,7 +22,6 @@ HOME_DIR=/home/$USERNAME
 # download files
 echo "Downloading files"
 gcloud storage cp gs://$BUCKET_NAME/install_openclaw.sh $HOME_DIR/
-gcloud storage cp gs://$BUCKET_NAME/configure_openclaw.sh $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/.bashrc $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/.vimrc $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/.tmux.conf $HOME_DIR/
@@ -40,8 +39,6 @@ gcloud storage rm gs://$BUCKET_NAME/**
 echo "Fixing permissions"
 chown -R $USERNAME:$USERNAME $HOME_DIR/install_openclaw.sh
 chmod 744 $HOME_DIR/install_openclaw.sh
-chown -R $USERNAME:$USERNAME $HOME_DIR/configure_openclaw.sh
-chmod 744 $HOME_DIR/configure_openclaw.sh
 chown -R $USERNAME:$USERNAME $HOME_DIR/.bashrc
 chown -R $USERNAME:$USERNAME $HOME_DIR/.vimrc
 chown -R $USERNAME:$USERNAME $HOME_DIR/.tmux.conf
@@ -75,7 +72,7 @@ apt-get -y install tree curl git build-essential python3 python3-pip python3-ven
 
 # sshd
 echo "ClientAliveCountMax 20" >> /etc/ssh/sshd_config
-sudo systemctl restart ssh
+systemctl restart ssh
 
 
 # touch flag
