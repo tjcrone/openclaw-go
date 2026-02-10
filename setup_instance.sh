@@ -67,7 +67,7 @@ rm -rf /var/lib/apt/lists/*
 apt-get clean
 apt-get update
 apt-get -y upgrade
-apt-get -y install tree curl git build-essential python3 python3-pip python3-venv wget
+apt-get -y install build-essential git tmux tree
 
 
 # sshd
