@@ -119,22 +119,14 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# automatic screen 
-if [ "$(uname)" == "Linux" ]; then
-  if [ -x "$(command -v screen)" ]; then
-    if [ -z "$STY" ]; then
-      socket=`screen -ls | grep Detached | cut -f2 | sort | head -n1`
-      if [ -z "$socket" ]; then
-        echo "No socket available"
-        echo "Starting new screen"
-        /usr/bin/screen -q
-      else
-        echo "Connecting to $socket"
-        /usr/bin/screen -q -r $socket
-      fi
-    else
-      alias exit="/usr/bin/screen -DD $STY"
-    fi
-  fi
+# automatic tmux
+if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then
+    tmux attach || tmux new -s main
+    # when tmux detaches or exits, disconnect SSH
+    exit
+fi
+
+if [ -n "$TMUX" ]; then
+    alias exit='tmux detach'
 fi
 

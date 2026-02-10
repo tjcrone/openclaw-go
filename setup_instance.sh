@@ -25,7 +25,7 @@ gcloud storage cp gs://$BUCKET_NAME/install_openclaw.sh $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/configure_openclaw.sh $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/.bashrc $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/.vimrc $HOME_DIR/
-gcloud storage cp gs://$BUCKET_NAME/.screenrc $HOME_DIR/
+gcloud storage cp gs://$BUCKET_NAME/.tmux.conf $HOME_DIR/
 sudo -u $USERNAME mkdir -p $HOME_DIR/.config/litellm
 gcloud storage cp gs://$BUCKET_NAME/litellm.env $HOME_DIR/.config/litellm/.env
 gcloud storage cp gs://$BUCKET_NAME/litellm_config.yaml $HOME_DIR/.config/litellm/
@@ -44,7 +44,7 @@ chown -R $USERNAME:$USERNAME $HOME_DIR/configure_openclaw.sh
 chmod 744 $HOME_DIR/configure_openclaw.sh
 chown -R $USERNAME:$USERNAME $HOME_DIR/.bashrc
 chown -R $USERNAME:$USERNAME $HOME_DIR/.vimrc
-chown -R $USERNAME:$USERNAME $HOME_DIR/.screenrc
+chown -R $USERNAME:$USERNAME $HOME_DIR/.tmux.conf
 chown -R $USERNAME:$USERNAME $HOME_DIR/.config/litellm/.env
 chmod 600 $HOME_DIR/.config/litellm/.env
 chown -R $USERNAME:$USERNAME $HOME_DIR/.config/litellm/litellm_config.yaml

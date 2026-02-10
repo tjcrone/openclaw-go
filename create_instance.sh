@@ -14,7 +14,7 @@ gcloud storage cp ./configure_openclaw.sh gs://$BUCKET_NAME
 gcloud storage cp ./$SETUP_SCRIPT gs://$BUCKET_NAME
 gcloud storage cp ./.bashrc gs://$BUCKET_NAME
 gcloud storage cp ./.vimrc gs://$BUCKET_NAME
-gcloud storage cp ./.screenrc gs://$BUCKET_NAME
+gcloud storage cp ./.tmux.conf gs://$BUCKET_NAME
 gcloud storage cp ./litellm.env gs://$BUCKET_NAME
 gcloud storage cp ./litellm_config.yaml gs://$BUCKET_NAME
 gcloud storage cp ./ghostty.terminfo gs://$BUCKET_NAME
