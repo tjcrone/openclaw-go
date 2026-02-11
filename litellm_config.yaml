@@ -1,12 +1,33 @@
 model_list:
-  # primary brain (DeepSeek R1 via OpenRouter)
-  # Good reasoning + creativity at ~$2.74/M tokens
+  # brain (DeepSeek V3.2 via OpenRouter)
+  # Hybrid reasoning, GPT-5 class at $0.25/$0.38 per M tokens
   - model_name: brain
     litellm_params:
-      model: openrouter/deepseek/deepseek-r1
+      model: openrouter/deepseek/deepseek-v3.2
       api_key: os.environ/OPENROUTER_API_KEY
 
-  # coding model (Gemini 2.5 Flash)
+  # brain-opus (Claude Opus 4.6 via OpenRouter)
+  # Top-tier reasoning at $15/$75 per M tokens
+  - model_name: brain-opus
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4-6
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  # brain-gemini (Gemini 2.5 Flash with thinking)
+  # Fast reasoning, 1M context at $0.15/$0.60 per M tokens
+  - model_name: brain-gemini
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+
+  # brain-kimi (Kimi K2.5 via OpenRouter)
+  # Multimodal agentic reasoning at $0.50/$2.80 per M tokens
+  - model_name: brain-kimi
+    litellm_params:
+      model: openrouter/moonshotai/kimi-k2.5
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  # coder (Gemini 2.5 Flash)
   # Fast, capable coder at $0.15/$0.60 per M tokens
   - model_name: coder
     litellm_params:
@@ -14,29 +35,24 @@ model_list:
       api_key: os.environ/GEMINI_API_KEY
 
   # heartbeat (Gemini 2.5 Flash-Lite)
-  # Ultra-cheap at $0.075/$0.30 per M tokens (free tier available)
-  - model_name: cheap
+  # Ultra-cheap at $0.075/$0.30 per M tokens
+  - model_name: heartbeat
     litellm_params:
       model: gemini/gemini-2.5-flash-lite
       api_key: os.environ/GEMINI_API_KEY
+
+  # perplexity (Perplexity Sonar via OpenRouter)
+  # Web search grounded answers at ~$1/M tokens
+  - model_name: perplexity
+    litellm_params:
+      model: openrouter/perplexity/sonar
+      api_key: os.environ/OPENROUTER_API_KEY
 
   # fallback brain (Gemini 2.5 Flash)
   - model_name: brain-fallback
     litellm_params:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GEMINI_API_KEY
-
-  # lightweight brain (Gemini 2.5 Flash with reasoning)
-  - model_name: brain-lite
-    litellm_params:
-      model: gemini/gemini-2.5-flash
-      api_key: os.environ/GEMINI_API_KEY
-
-  # perplexity researcher (Perplexity via OpenRouter)
-  - model_name: researcher
-    litellm_params:
-      model: openrouter/perplexity/sonar
-      api_key: os.environ/OPENROUTER_API_KEY
 
 litellm_settings:
   drop_params: true
@@ -51,3 +67,4 @@ router_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
+
