@@ -1,10 +1,10 @@
 model_list:
-  # brain (DeepSeek V3.2 via OpenRouter)
-  # Hybrid reasoning, GPT-5 class at $0.25/$0.38 per M tokens
+  # brain (DeepSeek V3.1 via Synthetic)
+  # Hybrid reasoning on US/EU hardware (no Chinese servers)
   - model_name: brain
     litellm_params:
-      model: openrouter/deepseek/deepseek-v3.2
-      api_key: os.environ/OPENROUTER_API_KEY
+      model: synthetic/hf:deepseek-ai/DeepSeek-V3.2
+      api_key: os.environ/SYNTHETIC_API_KEY
 
   # brain-opus (Claude Opus 4.6 via OpenRouter)
   # Top-tier reasoning at $15/$75 per M tokens
@@ -20,12 +20,12 @@ model_list:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GEMINI_API_KEY
 
-  # brain-kimi (Kimi K2.5 via OpenRouter)
-  # Multimodal agentic reasoning at $0.50/$2.80 per M tokens
+  # brain-kimi (Kimi K2.5 via Synthetic)
+  # Multimodal agentic reasoning on US/EU hardware (no Chinese servers)
   - model_name: brain-kimi
     litellm_params:
-      model: openrouter/moonshotai/kimi-k2.5
-      api_key: os.environ/OPENROUTER_API_KEY
+      model: synthetic/hf:moonshotai/Kimi-K2.5
+      api_key: os.environ/SYNTHETIC_API_KEY
 
   # coder (Gemini 2.5 Flash)
   # Fast, capable coder at $0.15/$0.60 per M tokens

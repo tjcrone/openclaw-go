@@ -79,10 +79,10 @@ openclaw config set models.providers.litellm --json '{
   apiKey: "'$LITELLM_MASTER_KEY'",
   api: "openai-completions",
   models: [
-    {id: "brain", name: "DeepSeek V3.2 (via OpenRouter)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 164000, maxTokens: 8192},
+    {id: "brain", name: "DeepSeek V3.2 (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 164000, maxTokens: 8192},
     {id: "brain-opus", name: "Claude Opus 4.6 (via OpenRouter)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 200000, maxTokens: 8192},
     {id: "brain-gemini", name: "Gemini 2.5 Flash (Thinking)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
-    {id: "brain-kimi", name: "Kimi K2.5 (via OpenRouter)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 262000, maxTokens: 8192},
+    {id: "brain-kimi", name: "Kimi K2.5 (via Synthetic)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 262000, maxTokens: 8192},
     {id: "coder", name: "Gemini 2.5 Flash", reasoning: false, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
     {id: "heartbeat", name: "Gemini 2.5 Flash-Lite", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
     {id: "perplexity", name: "Perplexity Sonar", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192}
