@@ -79,10 +79,14 @@ openclaw config set models.providers.litellm --json '{
   apiKey: "'$LITELLM_MASTER_KEY'",
   api: "openai-completions",
   models: [
-    {id: "brain", name: "DeepSeek V3.2 (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 164000, maxTokens: 8192},
+    {id: "brain", name: "GPT-OSS 120B (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192},
     {id: "brain-opus", name: "Claude Opus 4.6 (via OpenRouter)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 200000, maxTokens: 8192},
     {id: "brain-gemini", name: "Gemini 2.5 Flash (Thinking)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
     {id: "brain-kimi", name: "Kimi K2.5 (via Synthetic)", reasoning: true, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 262000, maxTokens: 8192},
+    {id: "brain-gpt", name: "GPT-OSS 120B (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192},
+    {id: "brain-minimax", name: "MiniMax M2.1 (via Synthetic)", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
+    {id: "brain-qwen", name: "Qwen3-235B Thinking (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192},
+    {id: "brain-deepseek", name: "DeepSeek V3.2 (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 164000, maxTokens: 8192},
     {id: "coder", name: "Gemini 2.5 Flash", reasoning: false, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
     {id: "heartbeat", name: "Gemini 2.5 Flash-Lite", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
     {id: "perplexity", name: "Perplexity Sonar", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192}
@@ -98,6 +102,10 @@ openclaw config set agents.defaults --json '{
     "litellm/brain-opus": {alias: "brain-opus"},
     "litellm/brain-gemini": {alias: "brain-gemini"},
     "litellm/brain-kimi": {alias: "brain-kimi"},
+    "litellm/brain-gpt": {alias: "brain-gpt"},
+    "litellm/brain-minimax": {alias: "brain-minimax"},
+    "litellm/brain-qwen": {alias: "brain-qwen"},
+    "litellm/brain-deepseek": {alias: "brain-deepseek"},
     "litellm/coder": {alias: "coder"},
     "litellm/heartbeat": {alias: "heartbeat"},
     "litellm/perplexity": {alias: "perplexity"}

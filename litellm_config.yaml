@@ -1,20 +1,20 @@
 model_list:
-  # brain (DeepSeek V3.1 via Synthetic)
-  # Hybrid reasoning on US/EU hardware (no Chinese servers)
+  # brain (OpenAI gpt-oss-120b via Synthetic)
+  # MoE reasoning model, matches o4-mini at $0.10/$0.10 per M tokens
   - model_name: brain
     litellm_params:
-      model: synthetic/hf:deepseek-ai/DeepSeek-V3.2
+      model: synthetic/hf:openai/gpt-oss-120b
       api_key: os.environ/SYNTHETIC_API_KEY
 
   # brain-opus (Claude Opus 4.6 via OpenRouter)
-  # Top-tier reasoning at $15/$75 per M tokens
+  # Top-tier reasoning at $5/$25 per M tokens
   - model_name: brain-opus
     litellm_params:
       model: openrouter/anthropic/claude-opus-4-6
       api_key: os.environ/OPENROUTER_API_KEY
 
   # brain-gemini (Gemini 2.5 Flash with thinking)
-  # Fast reasoning, 1M context at $0.15/$0.60 per M tokens
+  # Fast reasoning, 1M context at $0.30/$2.50 per M tokens
   - model_name: brain-gemini
     litellm_params:
       model: gemini/gemini-2.5-flash
@@ -27,19 +27,49 @@ model_list:
       model: synthetic/hf:moonshotai/Kimi-K2.5
       api_key: os.environ/SYNTHETIC_API_KEY
 
+  # brain-gpt (OpenAI gpt-oss-120b via Synthetic)
+  # MoE reasoning model, matches o4-mini at $0.10/$0.10 per M tokens
+  - model_name: brain-gpt
+    litellm_params:
+      model: synthetic/hf:openai/gpt-oss-120b
+      api_key: os.environ/SYNTHETIC_API_KEY
+
+  # brain-minimax (MiniMax M2.1 via Synthetic)
+  # Agentic-focused, strong tool calling at $0.30/$1.20 per M tokens
+  - model_name: brain-minimax
+    litellm_params:
+      model: synthetic/hf:MiniMaxAI/MiniMax-M2.1
+      api_key: os.environ/SYNTHETIC_API_KEY
+
+  # brain-qwen (Qwen3-235B-A22B Thinking via Synthetic)
+  # Top reasoning, thinking mode at $0.65/$3.00 per M tokens
+  - model_name: brain-qwen
+    litellm_params:
+      model: synthetic/hf:Qwen/Qwen3-235B-A22B-Thinking-2507
+      api_key: os.environ/SYNTHETIC_API_KEY
+
+  # brain-deepseek (DeepSeek V3.2 via Synthetic)
+  # Hybrid reasoning on US/EU hardware at $0.56/$1.68 per M tokens
+  - model_name: brain-deepseek
+    litellm_params:
+      model: synthetic/hf:deepseek-ai/DeepSeek-V3.2
+      api_key: os.environ/SYNTHETIC_API_KEY
+
   # coder (Gemini 2.5 Flash)
-  # Fast, capable coder at $0.15/$0.60 per M tokens
+  # Fast, capable coder at $0.30/$2.50 per M tokens
   - model_name: coder
     litellm_params:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GEMINI_API_KEY
+      reasoning_effort: "none"
 
   # heartbeat (Gemini 2.5 Flash-Lite)
-  # Ultra-cheap at $0.075/$0.30 per M tokens
+  # Ultra-cheap at $0.10/$0.40 per M tokens
   - model_name: heartbeat
     litellm_params:
       model: gemini/gemini-2.5-flash-lite
       api_key: os.environ/GEMINI_API_KEY
+      reasoning_effort: "none"
 
   # perplexity (Perplexity Sonar via OpenRouter)
   # Web search grounded answers at ~$1/M tokens
@@ -53,6 +83,7 @@ model_list:
     litellm_params:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GEMINI_API_KEY
+      reasoning_effort: "none"
 
 litellm_settings:
   drop_params: true
