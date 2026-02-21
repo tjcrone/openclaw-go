@@ -11,6 +11,35 @@ NC='\033[0m' # reset color
 # source the settings file
 source settings.conf
 
+# find SSH public keys
+PUB_KEYS=(~/.ssh/*.pub)
+if [[ ${#PUB_KEYS[@]} -eq 0 ]]; then
+    echo "No SSH public keys found in ~/.ssh/"
+    exit 1
+elif [[ ${#PUB_KEYS[@]} -eq 1 ]]; then
+    PUB_KEY_FILE="${PUB_KEYS[0]}"
+else
+    while true; do
+        echo "Which SSH public key would you like to use?"
+        for i in "${!PUB_KEYS[@]}"; do
+            echo "  $((i+1))) ${PUB_KEYS[$i]##*/}"
+        done
+        echo "  q) Quit"
+        read -p "Select a key (1-${#PUB_KEYS[@]}, q): " KEY_CHOICE
+        if [[ "$KEY_CHOICE" == "q" || "$KEY_CHOICE" == "Q" ]]; then
+            echo "Cancelled."
+            exit 0
+        fi
+        if [[ "$KEY_CHOICE" =~ ^[0-9]+$ && "$KEY_CHOICE" -ge 1 && "$KEY_CHOICE" -le ${#PUB_KEYS[@]} ]]; then
+            break
+        fi
+        echo "Invalid selection. Please try again."
+        echo ""
+    done
+    PUB_KEY_FILE="${PUB_KEYS[$((KEY_CHOICE-1))]}"
+fi
+SSH_KEY="${USERNAME}:$(cat "$PUB_KEY_FILE")"
+
 
 # copy files to bucket
 echo -e "\n${GREEN}Copying files to the OpenClaw bucket $BUCKET_NAME ...${NC}"
@@ -41,7 +70,7 @@ if ! gcloud compute instances describe $VM_NAME --zone=$ZONE > /dev/null 2>&1; t
         --service-account=$SA_EMAIL \
         --scopes=cloud-platform \
         --tags=openclaw-instance \
-        --metadata=startup-script-url=gs://$BUCKET_NAME/$SETUP_SCRIPT
+        --metadata=startup-script-url=gs://$BUCKET_NAME/$SETUP_SCRIPT,ssh-keys="$SSH_KEY"
 fi
 
 echo -e "\n${GREEN}OpenClaw machine creation complete.${NC}"
