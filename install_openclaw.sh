@@ -45,6 +45,14 @@ echo -e "\n${GREEN}Installing docker ...${NC}"
 curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER
 
+# install Ollama
+echo -e "\n${GREEN}Installing Ollama ...${NC}"
+curl -fsSL https://ollama.com/install.sh | sh
+
+# pull heartbeat model
+echo -e "\n${GREEN}Pulling llama3.2:3b for heartbeats ...${NC}"
+ollama pull llama3.2:3b
+
 # source settings and env
 source $HOME/settings.conf
 source $HOME/.config/litellm/.env
@@ -149,7 +157,7 @@ openclaw config set models.providers.litellm --json '{
     {id: "brain-qwen", name: "Qwen3-235B Thinking (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192},
     {id: "brain-deepseek", name: "DeepSeek V3.2 (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 164000, maxTokens: 8192},
     {id: "coder", name: "Gemini 2.5 Flash", reasoning: false, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
-    {id: "heartbeat", name: "Gemini 2.5 Flash-Lite", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
+    {id: "heartbeat", name: "Llama 3.2 3B (Local)", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 2048},
     {id: "perplexity", name: "Perplexity Sonar", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192}
   ]
 }'
