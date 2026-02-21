@@ -69,10 +69,10 @@ echo "ClientAliveCountMax 20" >> /etc/ssh/sshd_config
 systemctl restart ssh
 
 
-# switch to Google's Debian mirror
-echo "Switching to debian.goog mirror"
-sed -i 's|https://deb.debian.org/debian|https://debian.goog/debian|g' /etc/apt/mirrors/debian.list
-sed -i 's|https://deb.debian.org/debian-security|https://debian.goog/debian-security|g' /etc/apt/mirrors/debian-security.list
+# switch to Fastly CDN Debian mirror
+echo "Switching to Fastly CDN mirror"
+sed -i 's|https://deb.debian.org|https://cdn-fastly.deb.debian.org|g' /etc/apt/mirrors/debian.list
+sed -i 's|https://deb.debian.org|https://cdn-fastly.deb.debian.org|g' /etc/apt/mirrors/debian-security.list
 
 # apt
 rm -rf /var/lib/apt/lists/*

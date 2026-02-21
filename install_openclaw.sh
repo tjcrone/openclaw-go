@@ -121,7 +121,7 @@ openclaw onboard --non-interactive \
   --install-daemon \
   --daemon-runtime node \
   --skip-skills \
-  --accept-risk
+  --accept-risk || true
 
 # generate virtual key with monthly budget
 echo -e "\n${GREEN}Generating virtual key with \$${MONTHLY_BUDGET}/month budget ...${NC}"
