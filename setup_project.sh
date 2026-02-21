@@ -35,9 +35,14 @@ fi
 if ! gcloud iam service-accounts describe $SA_EMAIL > /dev/null 2>&1; then
     echo -e "\n${GREEN}Creating service account $SA_NAME ...${NC}"
     gcloud iam service-accounts create $SA_NAME --display-name "OpenClaw Service Account"
+
+    echo -e "\n${GREEN}Waiting for service account to propagate ...${NC}"
+    until gcloud iam service-accounts describe $SA_EMAIL > /dev/null 2>&1; do
+        sleep 2
+    done
 fi
 
-# grant storage permission
+# grant IAM roles
 echo -e "\n${GREEN}Granting IAM roles to $SA_EMAIL ...${NC}"
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$SA_EMAIL" \
