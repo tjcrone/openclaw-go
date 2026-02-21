@@ -106,7 +106,7 @@ done
 
 # install openclaw
 echo -e "\n${GREEN}Installing OpenClaw ...${NC}"
-npm install -g openclaw@latest
+npm install -g openclaw@2026.2.15
 export PATH="$(dirname $(which node)):$PATH"
 
 
