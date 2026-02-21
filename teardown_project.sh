@@ -6,6 +6,14 @@ set -e
 
 source settings.conf
 
+# confirm teardown
+echo -e "\n${GREEN}You are about to tear down project: $PROJECT_ID${NC}"
+read -p "Are you sure you want to proceed? (y/N): " CONFIRM
+if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+    echo "Teardown cancelled."
+    exit 0
+fi
+
 
 # remove project metadata
 echo "Removing project metadata ..."
