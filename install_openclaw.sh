@@ -49,6 +49,15 @@ sudo usermod -aG docker $USER
 source $HOME/settings.conf
 source $HOME/.config/litellm/.env
 
+# generate internal keys
+echo -e "\n${GREEN}Generating internal keys ...${NC}"
+POSTGRES_PASSWORD=$(openssl rand -hex 32)
+LITELLM_SALT_KEY=$(openssl rand -hex 32)
+LITELLM_MASTER_KEY=$(openssl rand -hex 32)
+echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $HOME/.config/litellm/.env
+echo "LITELLM_SALT_KEY=$LITELLM_SALT_KEY" >> $HOME/.config/litellm/.env
+echo "LITELLM_MASTER_KEY=$LITELLM_MASTER_KEY" >> $HOME/.config/litellm/.env
+
 # create docker network
 echo -e "\n${GREEN}Creating docker network ...${NC}"
 docker network create litellm-net
