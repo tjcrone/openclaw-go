@@ -5,6 +5,13 @@
 
 set -e
 
+# check that the setup script has finished
+if [ ! -f /etc/firstboot ]; then
+    echo "The instance setup script is not yet finished."
+    echo "Please wait a few minutes and try again."
+    exit 1
+fi
+
 # define color variables
 GREEN='\e[92m'
 NC='\e[0m' # reset color
