@@ -64,17 +64,17 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 
+# sshd
+echo "ClientAliveCountMax 20" >> /etc/ssh/sshd_config
+systemctl restart ssh
+
+
 # apt
 rm -rf /var/lib/apt/lists/*
 apt-get clean
 apt-get update
 apt-get -y upgrade
 apt-get -y install build-essential git tmux tree
-
-
-# sshd
-echo "ClientAliveCountMax 20" >> /etc/ssh/sshd_config
-systemctl restart ssh
 
 
 # touch flag
