@@ -28,7 +28,8 @@ gcloud storage cp gs://$BUCKET_NAME/.tmux.conf $HOME_DIR/
 sudo -u $USERNAME mkdir -p $HOME_DIR/.config/litellm
 gcloud storage cp gs://$BUCKET_NAME/litellm.env $HOME_DIR/.config/litellm/.env
 gcloud storage cp gs://$BUCKET_NAME/litellm_config.yaml $HOME_DIR/.config/litellm/
-gcloud storage cp gs://$BUCKET_NAME/ghostty.terminfo $HOME_DIR/ 
+gcloud storage cp gs://$BUCKET_NAME/ghostty.terminfo $HOME_DIR/
+gcloud storage cp gs://$BUCKET_NAME/settings.conf $HOME_DIR/
 
 
 # delete files
@@ -45,6 +46,7 @@ chown -R $USERNAME:$USERNAME $HOME_DIR/.tmux.conf
 chown -R $USERNAME:$USERNAME $HOME_DIR/.config/litellm/.env
 chmod 600 $HOME_DIR/.config/litellm/.env
 chown -R $USERNAME:$USERNAME $HOME_DIR/.config/litellm/litellm_config.yaml
+chown -R $USERNAME:$USERNAME $HOME_DIR/settings.conf
 
 
 # terminfo
