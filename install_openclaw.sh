@@ -49,6 +49,22 @@ sudo usermod -aG docker $USER
 echo -e "\n${GREEN}Installing Ollama ...${NC}"
 curl -fsSL https://ollama.com/install.sh | sh
 
+# configure Ollama to listen on all interfaces (needed for Docker access)
+echo -e "\n${GREEN}Configuring Ollama to listen on all interfaces ...${NC}"
+sudo mkdir -p /etc/systemd/system/ollama.service.d
+sudo tee /etc/systemd/system/ollama.service.d/override.conf > /dev/null <<'EOF'
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0"
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+
+# wait for Ollama to be ready
+echo -e "\n${GREEN}Waiting for Ollama ...${NC}"
+until curl -s http://localhost:11434/ > /dev/null 2>&1; do
+  sleep 1
+done
+
 # pull heartbeat model
 echo -e "\n${GREEN}Pulling llama3.2:3b for heartbeats ...${NC}"
 ollama pull llama3.2:3b
@@ -97,6 +113,7 @@ docker run -d \
   --name litellm \
   --restart unless-stopped \
   --network litellm-net \
+  --add-host=host.docker.internal:host-gateway \
   --env-file ~/.config/litellm/.env \
   -e DATABASE_URL=$DATABASE_URL \
   -v ~/.config/litellm/litellm_config.yaml:/app/config.yaml \
