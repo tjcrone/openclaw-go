@@ -100,8 +100,8 @@ docker run -d \
   --network litellm-net \
   --env-file ~/.config/litellm/.env \
   -e DATABASE_URL=$DATABASE_URL \
-  -e UI_USERNAME=admin \
-  -e UI_PASSWORD=admin \
+  -e UI_USERNAME=openclaw \
+  -e UI_PASSWORD=openclaw2026 \
   -v ~/.config/litellm/litellm_config.yaml:/app/config.yaml \
   -p 127.0.0.1:4000:4000 \
   ghcr.io/berriai/litellm:main-latest \
