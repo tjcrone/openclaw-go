@@ -1,6 +1,6 @@
 # OpenClaw Settings
 
-USERNAME="tjc"
+USERNAME="[your-username]"
 PROJECT_ID=$(gcloud config get-value project)
 REGION="us-central1"
 ZONE="us-central1-a"
@@ -14,3 +14,5 @@ SA_NAME="openclaw-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 SETUP_SCRIPT="setup_instance.sh"
 MONTHLY_BUDGET=100
+DOMAIN="[your-domain.com]"
+ADMIN_EMAIL="[your-email@gmail.com]"
