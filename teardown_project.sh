@@ -34,6 +34,7 @@ gcloud compute project-info remove-metadata \
 
 # release static IP
 if gcloud compute addresses describe $IP_NAME --region=$REGION > /dev/null 2>&1; then
+    echo ""
     read -p "Keep static IP address (to preserve DNS records)? (Y/n): " KEEP_IP
     if [[ "$KEEP_IP" == "n" || "$KEEP_IP" == "N" ]]; then
         echo -e "\n${GREEN}Deleting static IP $IP_NAME ...${NC}"
@@ -98,10 +99,5 @@ if gcloud compute networks describe $NET_NAME > /dev/null 2>&1; then
     gcloud compute networks delete $NET_NAME --quiet
 fi
 
-
-# disable APIs
-echo -e "\n${GREEN}Disabling APIs ...${NC}"
-gcloud services disable storage.googleapis.com --force
-gcloud services disable compute.googleapis.com --force
 
 echo -e "\n${GREEN}Teardown complete.${NC}"
