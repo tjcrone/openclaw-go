@@ -70,7 +70,7 @@ done
 
 # run install_openclaw.sh remotely
 echo -e "\n${GREEN}Running OpenClaw installation ...${NC}"
-ssh -t ${USERNAME}@${IP_ADDRESS} "./install_openclaw.sh"
+ssh -t -o ServerAliveInterval=30 ${USERNAME}@${IP_ADDRESS} "./install_openclaw.sh"
 
 # clean up install files
 echo -e "\n${GREEN}Cleaning up ...${NC}"
