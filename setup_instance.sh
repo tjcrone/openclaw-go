@@ -54,9 +54,11 @@ chmod 600 $HOME_DIR/.config/oauth2-proxy/.env
 
 
 # terminfo
-echo "Installing ghostty terminfo"
-tic -x -o /usr/share/terminfo $HOME_DIR/ghostty.terminfo
-rm $HOME_DIR/ghostty.terminfo
+if [ "$TERMINAL" = "ghostty" ]; then
+    echo "Installing ghostty terminfo"
+    tic -x -o /usr/share/terminfo $HOME_DIR/ghostty.terminfo
+fi
+rm -f $HOME_DIR/ghostty.terminfo
 
 
 # create a 4GB swap space

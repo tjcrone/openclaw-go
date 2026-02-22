@@ -16,3 +16,4 @@ SETUP_SCRIPT="setup_instance.sh"
 MONTHLY_BUDGET=100
 DOMAIN="[your-domain.com]"
 ADMIN_EMAIL="[your-email@gmail.com]"
+TERMINAL="ghostty"
