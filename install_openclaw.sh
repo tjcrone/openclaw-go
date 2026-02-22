@@ -73,21 +73,29 @@ ollama pull llama3.2:3b
 source $HOME/settings.conf
 source $HOME/.config/litellm/.env
 
-# generate internal keys
+# generate internal keys (only on first run)
 echo -e "\n${GREEN}Generating internal keys ...${NC}"
-POSTGRES_PASSWORD=$(openssl rand -hex 32)
-LITELLM_SALT_KEY=$(openssl rand -hex 32)
-LITELLM_MASTER_KEY=$(openssl rand -hex 32)
-echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $HOME/.config/litellm/.env
-echo "LITELLM_SALT_KEY=$LITELLM_SALT_KEY" >> $HOME/.config/litellm/.env
-echo "LITELLM_MASTER_KEY=$LITELLM_MASTER_KEY" >> $HOME/.config/litellm/.env
+source $HOME/.config/litellm/.env
+if [ -z "$POSTGRES_PASSWORD" ]; then
+  POSTGRES_PASSWORD=$(openssl rand -hex 32)
+  echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $HOME/.config/litellm/.env
+fi
+if [ -z "$LITELLM_SALT_KEY" ]; then
+  LITELLM_SALT_KEY=$(openssl rand -hex 32)
+  echo "LITELLM_SALT_KEY=$LITELLM_SALT_KEY" >> $HOME/.config/litellm/.env
+fi
+if [ -z "$LITELLM_MASTER_KEY" ]; then
+  LITELLM_MASTER_KEY=$(openssl rand -hex 32)
+  echo "LITELLM_MASTER_KEY=$LITELLM_MASTER_KEY" >> $HOME/.config/litellm/.env
+fi
 
 # create docker network
 echo -e "\n${GREEN}Creating docker network ...${NC}"
-docker network create litellm-net
+docker network create litellm-net 2>/dev/null || true
 
 # run PostgreSQL container
 echo -e "\n${GREEN}Running PostgreSQL docker container ...${NC}"
+docker stop litellm-db 2>/dev/null && docker rm litellm-db 2>/dev/null || true
 docker run -d \
   --name litellm-db \
   --restart unless-stopped \
@@ -109,6 +117,7 @@ DATABASE_URL="postgresql://litellm:${POSTGRES_PASSWORD}@litellm-db:5432/litellm"
 
 # run LiteLLM container
 echo -e "\n${GREEN}Running LiteLLM docker container ...${NC}"
+docker stop litellm 2>/dev/null && docker rm litellm 2>/dev/null || true
 docker run -d \
   --name litellm \
   --restart unless-stopped \
@@ -139,6 +148,7 @@ if [ -z "$OAUTH2_PROXY_COOKIE_SECRET" ]; then
   echo "OAUTH2_PROXY_COOKIE_SECRET=$OAUTH2_PROXY_COOKIE_SECRET" >> $HOME/.config/oauth2-proxy/.env
 fi
 echo "${ADMIN_EMAIL}" > $HOME/.config/oauth2-proxy/authenticated-emails.txt
+docker stop oauth2-proxy 2>/dev/null && docker rm oauth2-proxy 2>/dev/null || true
 docker run -d \
   --name oauth2-proxy \
   --restart unless-stopped \
