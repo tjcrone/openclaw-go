@@ -173,6 +173,7 @@ openclaw onboard --non-interactive \
 # allow proxied UI connections without device pairing (OAuth handles auth)
 echo -e "\n${GREEN}Configuring gateway for reverse proxy ...${NC}"
 openclaw config set gateway.controlUi.allowInsecureAuth true
+openclaw config set gateway.trustedProxies --json '["127.0.0.1"]'
 
 # extract gateway token for Caddyfile
 GATEWAY_TOKEN=$(openclaw config get gateway --json | python3 -c "import sys,json; print(json.load(sys.stdin)['auth']['token'])")
@@ -195,7 +196,11 @@ sudo tee /etc/caddy/Caddyfile > /dev/null <<CADDYEOF
 openclaw.${DOMAIN} {
 	import security_headers
 
-	@root path /
+	@root {
+		path /
+		not query token=*
+		not header Connection *Upgrade*
+	}
 	redir @root /?token=${GATEWAY_TOKEN} permanent
 
 	handle /oauth2/* {
@@ -215,14 +220,17 @@ openclaw.${DOMAIN} {
 				redir * /oauth2/sign_in?rd={scheme}://{host}{uri}
 			}
 		}
-		reverse_proxy 127.0.0.1:18789
+		reverse_proxy 127.0.0.1:18789 {
+			header_up Host {host}
+			header_up Origin https://{host}
+		}
 	}
 }
 
 litellm.${DOMAIN} {
 	import security_headers
 
-	redir / /ui/ permanent
+	redir / /ui/login permanent
 
 	handle /oauth2/* {
 		reverse_proxy 127.0.0.1:4180 {
