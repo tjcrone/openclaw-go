@@ -64,6 +64,11 @@ fi
 
 
 # delete firewall rules
+if gcloud compute firewall-rules describe openclaw-allow-https > /dev/null 2>&1; then
+    echo -e "\n${GREEN}Deleting firewall rule openclaw-allow-https ...${NC}"
+    gcloud compute firewall-rules delete openclaw-allow-https --quiet
+fi
+
 if gcloud compute firewall-rules describe openclaw-allow-ssh > /dev/null 2>&1; then
     echo -e "\n${GREEN}Deleting firewall rule openclaw-allow-ssh ...${NC}"
     gcloud compute firewall-rules delete openclaw-allow-ssh --quiet

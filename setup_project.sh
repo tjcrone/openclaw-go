@@ -31,6 +31,13 @@ if ! gcloud compute firewall-rules describe openclaw-allow-ssh > /dev/null 2>&1;
         --source-ranges=0.0.0.0/0 --target-tags=openclaw-instance
 fi
 
+if ! gcloud compute firewall-rules describe openclaw-allow-https > /dev/null 2>&1; then
+    echo -e "\n${GREEN}Creating firewall rule openclaw-allow-https ...${NC}"
+    gcloud compute firewall-rules create openclaw-allow-https \
+        --network=$NET_NAME --action=ALLOW --rules=tcp:80,tcp:443 \
+        --source-ranges=0.0.0.0/0 --target-tags=openclaw-instance
+fi
+
 # create service account
 if ! gcloud iam service-accounts describe $SA_EMAIL > /dev/null 2>&1; then
     echo -e "\n${GREEN}Creating service account $SA_NAME ...${NC}"
