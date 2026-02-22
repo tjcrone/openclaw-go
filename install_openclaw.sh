@@ -45,30 +45,6 @@ echo -e "\n${GREEN}Installing docker ...${NC}"
 curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER
 
-# install Ollama
-echo -e "\n${GREEN}Installing Ollama ...${NC}"
-curl -fsSL https://ollama.com/install.sh | sh
-
-# configure Ollama to listen on all interfaces (needed for Docker access)
-echo -e "\n${GREEN}Configuring Ollama to listen on all interfaces ...${NC}"
-sudo mkdir -p /etc/systemd/system/ollama.service.d
-sudo tee /etc/systemd/system/ollama.service.d/override.conf > /dev/null <<'EOF'
-[Service]
-Environment="OLLAMA_HOST=0.0.0.0"
-EOF
-sudo systemctl daemon-reload
-sudo systemctl restart ollama
-
-# wait for Ollama to be ready
-echo -e "\n${GREEN}Waiting for Ollama ...${NC}"
-until curl -s http://localhost:11434/ > /dev/null 2>&1; do
-  sleep 1
-done
-
-# pull heartbeat model
-echo -e "\n${GREEN}Pulling llama3.2:3b for heartbeats ...${NC}"
-ollama pull llama3.2:3b
-
 # source settings and env
 source $HOME/settings.conf
 source $HOME/.config/litellm/.env
@@ -122,7 +98,6 @@ docker run -d \
   --name litellm \
   --restart unless-stopped \
   --network litellm-net \
-  --add-host=host.docker.internal:host-gateway \
   --env-file ~/.config/litellm/.env \
   -e DATABASE_URL=$DATABASE_URL \
   -e UI_USERNAME=admin \
@@ -299,7 +274,7 @@ openclaw config set models.providers.litellm --json '{
     {id: "brain-qwen", name: "Qwen3-235B Thinking (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192},
     {id: "brain-deepseek", name: "DeepSeek V3.2 (via Synthetic)", reasoning: true, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 164000, maxTokens: 8192},
     {id: "coder", name: "Gemini 2.5 Flash", reasoning: false, input: ["text", "image"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
-    {id: "heartbeat", name: "Llama 3.2 3B (Local)", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 2048},
+    {id: "heartbeat", name: "Gemini 2.5 Flash-Lite", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 1000000, maxTokens: 8192},
     {id: "perplexity", name: "Perplexity Sonar", reasoning: false, input: ["text"], cost: {input: 0, output: 0, cacheRead: 0, cacheWrite: 0}, contextWindow: 128000, maxTokens: 8192}
   ]
 }'
