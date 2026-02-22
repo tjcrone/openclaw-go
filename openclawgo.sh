@@ -53,6 +53,9 @@ read -p "Press Enter when DNS records are in place ..."
 echo -e "\n${GREEN}Creating VM instance ...${NC}"
 ./create_instance.sh
 
+# clear stale host key (VM was recreated at same IP)
+ssh-keygen -R ${IP_ADDRESS} 2>/dev/null || true
+
 # wait for SSH
 echo -e "\n${GREEN}Waiting for SSH to become available ...${NC}"
 until ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new ${USERNAME}@${IP_ADDRESS} true 2>/dev/null; do
