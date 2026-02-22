@@ -20,7 +20,7 @@ if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
     exit 0
 fi
 
-# check for SSH keys
+# SSH setup
 PUB_KEYS=(~/.ssh/*.pub)
 if [[ ${#PUB_KEYS[@]} -eq 0 || ! -f "${PUB_KEYS[0]}" ]]; then
     echo -e "\n${GREEN}No SSH public keys found.${NC}"
@@ -30,9 +30,31 @@ if [[ ${#PUB_KEYS[@]} -eq 0 || ! -f "${PUB_KEYS[0]}" ]]; then
         exit 1
     fi
     ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
+    PUB_KEYS=(~/.ssh/*.pub)
 fi
+if [[ ${#PUB_KEYS[@]} -gt 1 ]]; then
+    while true; do
+        echo -e "\n${GREEN}Which SSH public key would you like to use?${NC}"
+        for i in "${!PUB_KEYS[@]}"; do
+            echo "  $((i+1))) ${PUB_KEYS[$i]##*/}"
+        done
+        echo "  q) Quit"
+        read -p "Select a key (1-${#PUB_KEYS[@]}, q): " KEY_CHOICE
+        if [[ "$KEY_CHOICE" == "q" || "$KEY_CHOICE" == "Q" ]]; then
+            echo "Cancelled."
+            exit 0
+        fi
+        if [[ "$KEY_CHOICE" =~ ^[0-9]+$ && "$KEY_CHOICE" -ge 1 && "$KEY_CHOICE" -le ${#PUB_KEYS[@]} ]]; then
+            break
+        fi
+        echo "Invalid selection. Please try again."
+    done
+    PUB_KEYS=("${PUB_KEYS[$((KEY_CHOICE-1))]}")
+fi
+export PUB_KEY_FILE="${PUB_KEYS[0]}"
+PRIVATE_KEY_FILE="${PUB_KEY_FILE%.pub}"
+eval "$(ssh-agent -s)" > /dev/null 2>&1
+ssh-add "$PRIVATE_KEY_FILE"
 
 # setup project
 echo -e "\n${GREEN}Setting up GCP project ...${NC}"
@@ -54,6 +76,7 @@ echo -e "\n${GREEN}Creating VM instance ...${NC}"
 ./create_instance.sh
 
 # clear stale host key (VM was recreated at same IP)
+echo -e "\n${GREEN}Clearing stale SSH host keys ...${NC}"
 ssh-keygen -R ${IP_ADDRESS} 2>/dev/null || true
 
 # wait for SSH
