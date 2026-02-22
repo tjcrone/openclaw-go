@@ -53,8 +53,11 @@ if [[ ${#PUB_KEYS[@]} -gt 1 ]]; then
 fi
 export PUB_KEY_FILE="${PUB_KEYS[0]}"
 PRIVATE_KEY_FILE="${PUB_KEY_FILE%.pub}"
-eval "$(ssh-agent -s)" > /dev/null 2>&1
-ssh-add "$PRIVATE_KEY_FILE"
+KEY_FP=$(ssh-keygen -lf "$PUB_KEY_FILE" | awk '{print $2}')
+if ! ssh-add -l 2>/dev/null | grep -q "$KEY_FP"; then
+    eval "$(ssh-agent -s)" > /dev/null 2>&1
+    ssh-add "$PRIVATE_KEY_FILE"
+fi
 
 # setup project
 echo -e "\n${GREEN}Setting up GCP project ...${NC}"
