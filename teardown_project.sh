@@ -19,6 +19,13 @@ if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
 fi
 
 
+# delete VM
+if gcloud compute instances describe $VM_NAME --zone=$ZONE > /dev/null 2>&1; then
+    echo -e "\n${GREEN}Deleting VM $VM_NAME ...${NC}"
+    gcloud compute instances delete $VM_NAME --zone=$ZONE --quiet
+fi
+
+
 # remove project metadata
 echo -e "\n${GREEN}Removing project metadata ...${NC}"
 gcloud compute project-info remove-metadata \
@@ -27,8 +34,13 @@ gcloud compute project-info remove-metadata \
 
 # release static IP
 if gcloud compute addresses describe $IP_NAME --region=$REGION > /dev/null 2>&1; then
-    echo -e "\n${GREEN}Deleting static IP $IP_NAME ...${NC}"
-    gcloud compute addresses delete $IP_NAME --region=$REGION --quiet
+    read -p "Keep static IP address (to preserve DNS records)? (Y/n): " KEEP_IP
+    if [[ "$KEEP_IP" == "n" || "$KEEP_IP" == "N" ]]; then
+        echo -e "\n${GREEN}Deleting static IP $IP_NAME ...${NC}"
+        gcloud compute addresses delete $IP_NAME --region=$REGION --quiet
+    else
+        echo -e "${GREEN}Keeping static IP $IP_NAME.${NC}"
+    fi
 fi
 
 
