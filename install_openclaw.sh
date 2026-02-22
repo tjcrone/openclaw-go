@@ -134,7 +134,10 @@ done
 # start oauth2-proxy
 echo -e "\n${GREEN}Starting oauth2-proxy ...${NC}"
 source $HOME/.config/oauth2-proxy/.env
-OAUTH2_PROXY_COOKIE_SECRET=$(openssl rand -hex 16)
+if [ -z "$OAUTH2_PROXY_COOKIE_SECRET" ]; then
+  OAUTH2_PROXY_COOKIE_SECRET=$(openssl rand -hex 16)
+  echo "OAUTH2_PROXY_COOKIE_SECRET=$OAUTH2_PROXY_COOKIE_SECRET" >> $HOME/.config/oauth2-proxy/.env
+fi
 echo "${ADMIN_EMAIL}" > $HOME/.config/oauth2-proxy/authenticated-emails.txt
 docker run -d \
   --name oauth2-proxy \
