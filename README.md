@@ -1,105 +1,148 @@
 # OpenClaw Go
 
-Deploy OpenClaw on GCP with LiteLLM, Ollama, and secure web access via Google OAuth.
+OpenClaw Go deploys [OpenClaw](https://github.com/open-claw/open-claw) and
+[LiteLLM](https://github.com/BerriAI/litellm) on a Google Cloud VM, with
+HTTPS and Google OAuth protecting both dashboards. The entire deploy is a
+single command — this guide walks you through everything you need to do first.
 
 ## Prerequisites
 
-- A GCP account with billing enabled
-- The `gcloud` CLI installed and authenticated
-- A domain name with DNS you can manage (e.g. Squarespace)
-- API keys for your model providers (Synthetic, OpenRouter, Gemini)
+- **A Mac** — these instructions assume macOS
+- **A Google Cloud account** with billing enabled
+- **A domain name you control** — you'll add DNS records during setup
+- **API keys** from the model providers you want to use:
+  - [Synthetic](https://app.synthetic.computer/) (sign up and generate an API key)
+  - [OpenRouter](https://openrouter.ai/) (sign up and generate an API key)
+  - [Google Gemini](https://aistudio.google.com/apikey) (create an API key)
 
 ## Setup
 
-### 1. Configure settings
+### Step 1: Install Homebrew
 
-Copy the example files and fill in your values:
+If you don't already have Homebrew, install it by pasting this command in
+Terminal:
 
-    cp litellm.env.example litellm.env
-    cp oauth2-proxy.env.example oauth2-proxy.env
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
-Edit `settings.conf` to set your username, GCP region, domain name,
-admin email, and other preferences.
+See [https://brew.sh](https://brew.sh) for details.
 
-Edit `litellm.env` with your API keys for Synthetic, OpenRouter, and Gemini.
+### Step 2: Install git and the gcloud CLI
 
-### 2. Set up Google OAuth
+```
+brew install git
+brew install --cask gcloud-cli
+```
 
-1. Go to GCP Console → APIs & Services → OAuth consent screen
-2. Create an External consent screen (app name, support email, scopes: openid, email, profile)
-3. Go to Credentials → Create OAuth 2.0 Client ID (Web application)
-4. Add authorized redirect URIs:
-   - `https://openclaw.<DOMAIN>/oauth2/callback`
-   - `https://litellm.<DOMAIN>/oauth2/callback`
-5. Copy the Client ID and Client Secret into `oauth2-proxy.env`
+### Step 3: Clone this repo
 
-### 3. Set up DNS
+```
+git clone https://github.com/tjcrone/openclaw-go.git
+cd openclaw-go
+```
 
-Add two A records at your domain registrar pointing at your GCP static IP:
-- `openclaw` → `<STATIC_IP>`
-- `litellm` → `<STATIC_IP>`
+### Step 4: Log in to Google Cloud
 
-Do this early — DNS propagation can take time. The static IP is created
-in the next step; you can update the records after running `setup_project.sh`.
+```
+gcloud auth login
+gcloud config set project <PROJECT_ID>
+```
 
-### 4. Authenticate with GCP
+Replace `<PROJECT_ID>` with your GCP project ID. If you don't have a project
+yet, create one in the [Google Cloud Console](https://console.cloud.google.com/)
+and enable billing before continuing.
 
-    gcloud auth login
-    gcloud config set project <YOUR_PROJECT_ID>
+### Step 5: Set up Google OAuth credentials
 
-### 5. Set up the GCP project
+OpenClaw uses Google OAuth to control who can access the dashboards. You need
+to create OAuth credentials in the Google Cloud Console:
 
-    ./setup_project.sh
+1. Go to **APIs & Services > OAuth consent screen**
+2. Click **Get started** and create an **External** consent screen
+   - Set the app name to anything (e.g. "OpenClaw")
+   - Add your email as the support email
+   - Add the scopes: `openid`, `email`, `profile`
+   - Add your email as a test user
+3. Go to **APIs & Services > Credentials**
+4. Click **Create Credentials > OAuth 2.0 Client ID**
+   - Application type: **Web application**
+   - Name: anything (e.g. "OpenClaw")
+   - Under **Authorized redirect URIs**, add both:
+     - `https://openclaw.<YOUR-DOMAIN>/oauth2/callback`
+     - `https://litellm.<YOUR-DOMAIN>/oauth2/callback`
+5. Copy the **Client ID** and **Client Secret** — you'll need them in the next
+   step
 
-This creates the VPC network, firewall rules (SSH + HTTPS), service account,
-storage bucket, and static IP.
+### Step 6: Configure settings
 
-### 6. Create the VM
+Copy the example configuration files:
 
-    ./create_instance.sh
+```
+cp settings.conf.example settings.conf
+cp litellm.env.example litellm.env
+cp oauth2-proxy.env.example oauth2-proxy.env
+```
 
-This uploads configuration files to GCS and creates a Debian 13 VM.
-The VM runs a first-boot setup script automatically (installs packages,
-Caddy, swap, etc.). Wait a few minutes before logging in.
+Edit each file and fill in your values:
 
-### 7. Install OpenClaw
+**`settings.conf`** — General deployment settings:
+- `USERNAME` — the username for SSH access to the VM
+- `DOMAIN` — your domain name (e.g. `example.com`)
+- `ADMIN_EMAIL` — your Google account email (used for OAuth access)
+- The remaining defaults (region, machine type, etc.) are fine for most users
 
-SSH into the VM and run the install script:
+**`litellm.env`** — API keys for model providers:
+- `OPENROUTER_API_KEY` — your OpenRouter API key
+- `GEMINI_API_KEY` — your Google Gemini API key
+- `SYNTHETIC_API_KEY` — your Synthetic API key
 
-    ssh <USERNAME>@<STATIC_IP>
-    ./install_openclaw.sh
+**`oauth2-proxy.env`** — Google OAuth credentials from Step 5:
+- `OAUTH2_PROXY_CLIENT_ID` — the Client ID you copied
+- `OAUTH2_PROXY_CLIENT_SECRET` — the Client Secret you copied
 
-This installs Node.js, Docker, Ollama, LiteLLM, oauth2-proxy, OpenClaw,
-and configures Caddy with SSL certificates.
+### Step 7: Deploy
 
-### 8. Access the dashboards
+```
+./openclawgo.sh
+```
 
-- OpenClaw: `https://openclaw.<DOMAIN>`
-- LiteLLM: `https://litellm.<DOMAIN>`
+The script will:
+1. Confirm your GCP project
+2. Handle SSH key setup (generating a key if you don't have one)
+3. Create GCP resources (network, firewall rules, static IP, storage bucket)
+4. **Pause and ask you to add DNS records** — it will display the static IP
+   address and the two A records you need to add at your domain registrar
+5. Create the VM and wait for it to come online
+6. Install and configure everything on the VM
 
-Both require Google OAuth login restricted to your admin email.
+The whole process takes roughly 10-15 minutes.
+
+## After Deployment
+
+Once the script finishes, your dashboards are live:
+
+- **OpenClaw:** `https://openclaw.<YOUR-DOMAIN>`
+- **LiteLLM:** `https://litellm.<YOUR-DOMAIN>`
+
+Both dashboards are protected by Google OAuth — only the email address in
+`ADMIN_EMAIL` can log in. The LiteLLM admin dashboard uses the credentials
+`openclaw` / `openclaw2026`.
 
 ## Teardown
 
-To remove all GCP resources created by `setup_project.sh`:
+To remove all GCP resources:
 
-    ./teardown_project.sh
+```
+./teardown_project.sh
+```
 
-Note: delete the VM first (`gcloud compute instances delete <VM_NAME>
---zone=<ZONE>`) before running teardown, as the network cannot be
-deleted while instances are attached.
+This deletes the VM, firewall rules, service account, network, and
+(optionally) the static IP. The storage bucket is preserved so that cached
+TLS certificates are available for redeployment.
 
-## File Overview
+## Redeployment
 
-| File | Description |
-|------|-------------|
-| `settings.conf` | GCP and domain configuration variables |
-| `litellm.env` | API keys for model providers (not committed) |
-| `oauth2-proxy.env` | Google OAuth credentials (not committed) |
-| `litellm_config.yaml` | LiteLLM model routing and pricing configuration |
-| `setup_project.sh` | One-time GCP project setup (network, firewall, IAM, bucket, IP) |
-| `teardown_project.sh` | Reverse of setup_project.sh for cleanup |
-| `create_instance.sh` | Upload configs and create VM |
-| `setup_instance.sh` | First-boot script (runs as root): packages, Caddy, swap |
-| `install_openclaw.sh` | User-run: installs everything and configures services |
-| `open_tunnel.sh` | SSH tunnel fallback (optional with web proxy) |
+You can run `./openclawgo.sh` again at any time to redeploy. TLS certificates
+are cached in the storage bucket, so redeployments won't hit Let's Encrypt
+rate limits.
