@@ -116,8 +116,10 @@ docker run -d \
   --add-host=host.docker.internal:host-gateway \
   --env-file ~/.config/litellm/.env \
   -e DATABASE_URL=$DATABASE_URL \
+  -e UI_USERNAME=admin \
+  -e UI_PASSWORD=admin \
   -v ~/.config/litellm/litellm_config.yaml:/app/config.yaml \
-  -p 4000:4000 \
+  -p 127.0.0.1:4000:4000 \
   ghcr.io/berriai/litellm:main-latest \
   --config /app/config.yaml \
   --port 4000 \
@@ -127,6 +129,37 @@ docker run -d \
 echo -e "\n${GREEN}Waiting for LiteLLM ...${NC}"
 until curl -s http://localhost:4000/health > /dev/null 2>&1; do
   sleep 2
+done
+
+# start oauth2-proxy
+echo -e "\n${GREEN}Starting oauth2-proxy ...${NC}"
+source $HOME/.config/oauth2-proxy/.env
+OAUTH2_PROXY_COOKIE_SECRET=$(openssl rand -hex 16)
+echo "${ADMIN_EMAIL}" > $HOME/.config/oauth2-proxy/authenticated-emails.txt
+docker run -d \
+  --name oauth2-proxy \
+  --restart unless-stopped \
+  --network host \
+  -e OAUTH2_PROXY_CLIENT_ID=$OAUTH2_PROXY_CLIENT_ID \
+  -e OAUTH2_PROXY_CLIENT_SECRET=$OAUTH2_PROXY_CLIENT_SECRET \
+  -e OAUTH2_PROXY_COOKIE_SECRET=$OAUTH2_PROXY_COOKIE_SECRET \
+  -v $HOME/.config/oauth2-proxy/authenticated-emails.txt:/etc/oauth2-proxy/authenticated-emails.txt:ro \
+  quay.io/oauth2-proxy/oauth2-proxy:latest \
+  --provider=google \
+  --http-address=0.0.0.0:4180 \
+  --upstream=static://202 \
+  --set-xauthrequest=true \
+  --email-domain=* \
+  --authenticated-emails-file=/etc/oauth2-proxy/authenticated-emails.txt \
+  --cookie-domain=.${DOMAIN} \
+  --cookie-secure=true \
+  --reverse-proxy=true \
+  --skip-provider-button=true
+
+# wait for oauth2-proxy to be ready
+echo -e "\n${GREEN}Waiting for oauth2-proxy ...${NC}"
+until curl -s http://127.0.0.1:4180/ping > /dev/null 2>&1; do
+  sleep 1
 done
 
 # install openclaw
@@ -147,6 +180,84 @@ openclaw onboard --non-interactive \
   --daemon-runtime node \
   --skip-skills \
   --accept-risk || true
+
+# allow proxied UI connections without device pairing (OAuth handles auth)
+echo -e "\n${GREEN}Configuring gateway for reverse proxy ...${NC}"
+openclaw config set gateway.controlUi.allowInsecureAuth true
+
+# extract gateway token for Caddyfile
+GATEWAY_TOKEN=$(openclaw config get gateway --json | python3 -c "import sys,json; print(json.load(sys.stdin)['auth']['token'])")
+
+# write Caddyfile
+echo -e "\n${GREEN}Writing Caddyfile ...${NC}"
+sudo tee /etc/caddy/Caddyfile > /dev/null <<CADDYEOF
+{
+	acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+(security_headers) {
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
+
+openclaw.${DOMAIN} {
+	import security_headers
+
+	@root path /
+	redir @root /?token=${GATEWAY_TOKEN} permanent
+
+	handle /oauth2/* {
+		reverse_proxy 127.0.0.1:4180 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Uri {uri}
+		}
+	}
+
+	handle {
+		forward_auth 127.0.0.1:4180 {
+			uri /oauth2/auth
+			header_up X-Real-IP {remote_host}
+
+			@error status 401
+			handle_response @error {
+				redir * /oauth2/sign_in?rd={scheme}://{host}{uri}
+			}
+		}
+		reverse_proxy 127.0.0.1:18789
+	}
+}
+
+litellm.${DOMAIN} {
+	import security_headers
+
+	redir / /ui/ permanent
+
+	handle /oauth2/* {
+		reverse_proxy 127.0.0.1:4180 {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Uri {uri}
+		}
+	}
+
+	handle {
+		forward_auth 127.0.0.1:4180 {
+			uri /oauth2/auth
+			header_up X-Real-IP {remote_host}
+
+			@error status 401
+			handle_response @error {
+				redir * /oauth2/sign_in?rd={scheme}://{host}{uri}
+			}
+		}
+		reverse_proxy 127.0.0.1:4000
+	}
+}
+CADDYEOF
+
+sudo systemctl reload caddy
 
 # generate virtual key with monthly budget
 echo -e "\n${GREEN}Generating virtual key with \$${MONTHLY_BUDGET}/month budget ...${NC}"

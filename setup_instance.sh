@@ -30,6 +30,8 @@ gcloud storage cp gs://$BUCKET_NAME/litellm.env $HOME_DIR/.config/litellm/.env
 gcloud storage cp gs://$BUCKET_NAME/litellm_config.yaml $HOME_DIR/.config/litellm/
 gcloud storage cp gs://$BUCKET_NAME/ghostty.terminfo $HOME_DIR/
 gcloud storage cp gs://$BUCKET_NAME/settings.conf $HOME_DIR/
+sudo -u $USERNAME mkdir -p $HOME_DIR/.config/oauth2-proxy
+gcloud storage cp gs://$BUCKET_NAME/oauth2-proxy.env $HOME_DIR/.config/oauth2-proxy/.env
 
 
 # delete files
@@ -47,6 +49,8 @@ chown -R $USERNAME:$USERNAME $HOME_DIR/.config/litellm/.env
 chmod 600 $HOME_DIR/.config/litellm/.env
 chown -R $USERNAME:$USERNAME $HOME_DIR/.config/litellm/litellm_config.yaml
 chown -R $USERNAME:$USERNAME $HOME_DIR/settings.conf
+chown -R $USERNAME:$USERNAME $HOME_DIR/.config/oauth2-proxy/.env
+chmod 600 $HOME_DIR/.config/oauth2-proxy/.env
 
 
 # terminfo
@@ -79,7 +83,15 @@ rm -rf /var/lib/apt/lists/*
 apt-get clean
 apt-get update
 apt-get -y upgrade
-apt-get -y install build-essential git tmux tree
+apt-get -y install build-essential git tmux tree debian-keyring debian-archive-keyring apt-transport-https curl
+
+
+# install Caddy
+echo "Installing Caddy"
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+apt-get update
+apt-get -y install caddy
 
 
 # touch flag

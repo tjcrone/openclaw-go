@@ -51,6 +51,7 @@ gcloud storage cp ./.tmux.conf gs://$BUCKET_NAME
 gcloud storage cp ./litellm.env gs://$BUCKET_NAME
 gcloud storage cp ./litellm_config.yaml gs://$BUCKET_NAME
 gcloud storage cp ./ghostty.terminfo gs://$BUCKET_NAME
+gcloud storage cp ./oauth2-proxy.env gs://$BUCKET_NAME
 gcloud storage cp ./settings.conf gs://$BUCKET_NAME
 
 
