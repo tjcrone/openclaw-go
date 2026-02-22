@@ -151,15 +151,10 @@ until curl -s http://127.0.0.1:4180/ping > /dev/null 2>&1; do
   sleep 1
 done
 
-# install openclaw from source
-echo -e "\n${GREEN}Cloning OpenClaw ...${NC}"
-git clone https://github.com/openclaw/openclaw.git $HOME/openclaw
-cd $HOME/openclaw
-echo -e "\n${GREEN}Building OpenClaw ...${NC}"
-pnpm install
-pnpm ui:build
-pnpm build
-npm link
+# install openclaw
+echo -e "\n${GREEN}Installing OpenClaw ...${NC}"
+npm install -g openclaw@2026.2.15
+export PATH="$(dirname $(which node)):$PATH"
 
 
 # run the onboarding wizard
