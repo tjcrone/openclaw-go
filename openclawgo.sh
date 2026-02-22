@@ -69,6 +69,10 @@ done
 echo -e "\n${GREEN}Running OpenClaw installation ...${NC}"
 ssh -t ${USERNAME}@${IP_ADDRESS} "./install_openclaw.sh"
 
+# clean up install files
+echo -e "\n${GREEN}Cleaning up ...${NC}"
+ssh ${USERNAME}@${IP_ADDRESS} "rm -f ~/install_openclaw.sh ~/settings.conf"
+
 echo -e "\n${GREEN}OpenClaw deployment complete!${NC}"
 echo -e "  OpenClaw: https://openclaw.${DOMAIN}"
 echo -e "  LiteLLM:  https://litellm.${DOMAIN}"
