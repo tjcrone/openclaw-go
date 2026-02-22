@@ -48,6 +48,7 @@ if ! gcloud iam service-accounts describe $SA_EMAIL > /dev/null 2>&1; then
     until gcloud iam service-accounts describe $SA_EMAIL > /dev/null 2>&1; do
         sleep 2
     done
+    sleep 10
 fi
 
 # grant IAM roles
