@@ -13,7 +13,8 @@ source settings.conf
 
 # enable APIs
 echo -e "\n${GREEN}Enabling APIs ...${NC}"
-gcloud services enable compute.googleapis.com storage.googleapis.com
+gcloud services enable compute.googleapis.com storage.googleapis.com --async
+sleep 10
 
 # create custom network
 if ! gcloud compute networks describe $NET_NAME > /dev/null 2>&1; then
