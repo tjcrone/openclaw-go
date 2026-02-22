@@ -166,6 +166,7 @@ docker run -d \
   --authenticated-emails-file=/etc/oauth2-proxy/authenticated-emails.txt \
   --cookie-domain=.${DOMAIN} \
   --cookie-secure=true \
+  --cookie-samesite=lax \
   --reverse-proxy=true \
   --skip-provider-button=true
 
@@ -211,7 +212,7 @@ sudo tee /etc/caddy/Caddyfile > /dev/null <<CADDYEOF
 (security_headers) {
 	header {
 		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
+		X-Frame-Options "SAMEORIGIN"
 		Referrer-Policy "strict-origin-when-cross-origin"
 	}
 }
