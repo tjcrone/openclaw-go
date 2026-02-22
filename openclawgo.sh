@@ -47,7 +47,7 @@ echo -e "Before continuing, add the following DNS A records at your domain regis
 echo -e "  openclaw.${DOMAIN} → ${IP_ADDRESS}"
 echo -e "  litellm.${DOMAIN}  → ${IP_ADDRESS}"
 echo ""
-read -p "Press Enter when DNS records are in place (or Ctrl-C to cancel) ..."
+read -p "Press Enter when DNS records are in place ..."
 
 # create instance (includes SSH key selection)
 echo -e "\n${GREEN}Creating VM instance ...${NC}"
