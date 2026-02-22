@@ -11,6 +11,15 @@ NC='\033[0m'
 
 source settings.conf
 
+# confirm GCP project
+CURRENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
+echo -e "\n${GREEN}Current GCP project: ${NC}${CURRENT_PROJECT}"
+read -p "Deploy OpenClaw to this project? (y/N): " CONFIRM
+if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+    echo "Cancelled. Use 'gcloud config set project <PROJECT_ID>' to switch projects."
+    exit 0
+fi
+
 # check for SSH keys
 PUB_KEYS=(~/.ssh/*.pub)
 if [[ ${#PUB_KEYS[@]} -eq 0 || ! -f "${PUB_KEYS[0]}" ]]; then
@@ -23,15 +32,6 @@ if [[ ${#PUB_KEYS[@]} -eq 0 || ! -f "${PUB_KEYS[0]}" ]]; then
     ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
     eval "$(ssh-agent -s)"
     ssh-add ~/.ssh/id_ed25519
-fi
-
-# confirm GCP project
-CURRENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
-echo -e "\n${GREEN}Current GCP project: ${NC}${CURRENT_PROJECT}"
-read -p "Deploy OpenClaw to this project? (y/N): " CONFIRM
-if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-    echo "Cancelled. Use 'gcloud config set project <PROJECT_ID>' to switch projects."
-    exit 0
 fi
 
 # setup project
