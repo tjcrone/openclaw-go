@@ -34,8 +34,7 @@ sudo -u $USERNAME mkdir -p $HOME_DIR/.config/oauth2-proxy
 gcloud storage cp gs://$BUCKET_NAME/oauth2-proxy.env $HOME_DIR/.config/oauth2-proxy/.env
 
 
-# delete files
-gcloud storage rm gs://$BUCKET_NAME/**
+# note: deploy files are left in the bucket (caddy-data/ certs live there too)
 
 
 # fix permissions

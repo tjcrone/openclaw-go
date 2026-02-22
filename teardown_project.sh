@@ -45,11 +45,7 @@ if gcloud compute addresses describe $IP_NAME --region=$REGION > /dev/null 2>&1;
 fi
 
 
-# delete storage bucket
-if gcloud storage buckets describe gs://$BUCKET_NAME > /dev/null 2>&1; then
-    echo -e "\n${GREEN}Deleting storage bucket $BUCKET_NAME ...${NC}"
-    gcloud storage rm -r gs://$BUCKET_NAME
-fi
+# note: storage bucket is preserved (contains cached certs)
 
 
 # revoke IAM roles from service account

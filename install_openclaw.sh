@@ -178,15 +178,23 @@ openclaw config set gateway.trustedProxies --json '["127.0.0.1"]'
 # extract gateway token for Caddyfile
 GATEWAY_TOKEN=$(openclaw config get gateway --json | python3 -c "import sys,json; print(json.load(sys.stdin)['auth']['token'])")
 
+# restore cached certs from bucket (if available)
+echo -e "\n${GREEN}Restoring cached certificates ...${NC}"
+if gcloud storage ls gs://$BUCKET_NAME/caddy-data/ > /dev/null 2>&1; then
+  sudo mkdir -p /var/lib/caddy/.local/share
+  sudo gcloud storage cp -r gs://$BUCKET_NAME/caddy-data/caddy/ /var/lib/caddy/.local/share/
+  sudo chown -R caddy:caddy /var/lib/caddy/.local/share/caddy/
+  echo "Certificates restored from bucket"
+else
+  echo "No cached certificates found, Caddy will obtain new ones"
+fi
+
 # write Caddyfile
 echo -e "\n${GREEN}Writing Caddyfile ...${NC}"
 sudo tee /etc/caddy/Caddyfile > /dev/null <<CADDYEOF
-{
-	acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-}
-
 (security_headers) {
 	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "SAMEORIGIN"
 		Referrer-Policy "strict-origin-when-cross-origin"
@@ -255,6 +263,11 @@ litellm.${DOMAIN} {
 CADDYEOF
 
 sudo systemctl reload caddy
+
+# back up certs to bucket (Caddy may have obtained new ones)
+echo -e "\n${GREEN}Backing up certificates to bucket ...${NC}"
+sleep 5
+sudo gcloud storage cp -r /var/lib/caddy/.local/share/caddy/ gs://$BUCKET_NAME/caddy-data/
 
 # generate virtual key with monthly budget
 echo -e "\n${GREEN}Generating virtual key with \$${MONTHLY_BUDGET}/month budget ...${NC}"
