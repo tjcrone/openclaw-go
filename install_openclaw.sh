@@ -191,6 +191,7 @@ if gcloud storage ls gs://$BUCKET_NAME/caddy-certs/ > /dev/null 2>&1; then
     sudo mkdir -p "$CERT_DIR/$DOMAIN_NAME"
     sudo gcloud storage cp "gs://$BUCKET_NAME/caddy-certs/${DOMAIN_NAME}.crt" "$CERT_DIR/$DOMAIN_NAME/"
     sudo gcloud storage cp "gs://$BUCKET_NAME/caddy-certs/${DOMAIN_NAME}.key" "$CERT_DIR/$DOMAIN_NAME/"
+    sudo gcloud storage cp "gs://$BUCKET_NAME/caddy-certs/${DOMAIN_NAME}.json" "$CERT_DIR/$DOMAIN_NAME/" 2>/dev/null || true
   done
   sudo chown -R caddy:caddy "$CADDY_DATA"
   echo "Certificates restored from bucket"
@@ -290,6 +291,9 @@ for crt in $(sudo find "$CERT_DIR" -name "*.crt" 2>/dev/null); do
 done
 for key in $(sudo find "$CERT_DIR" -name "*.key" -not -path "*/users/*" 2>/dev/null); do
   sudo gcloud storage cp "$key" gs://$BUCKET_NAME/caddy-certs/
+done
+for meta in $(sudo find "$CERT_DIR" -name "*.json" 2>/dev/null); do
+  sudo gcloud storage cp "$meta" gs://$BUCKET_NAME/caddy-certs/
 done
 echo "Certificates backed up to bucket"
 
