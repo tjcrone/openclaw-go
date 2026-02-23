@@ -21,10 +21,6 @@ echo -e "\n${GREEN}Installing miniforge ...${NC}"
 curl -L https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh -o install.sh && bash install.sh -b && rm install.sh
 ${HOME}/miniforge3/bin/conda init
 
-# install pnpm (recommended by OpenClaw)
-echo -e "\n${GREEN}Installing pnpm ...${NC}"
-npm install -g pnpm
-
 # install Docker (for LiteLLM)
 echo -e "\n${GREEN}Installing docker ...${NC}"
 curl -fsSL https://get.docker.com | sudo sh
@@ -137,18 +133,16 @@ until curl -s http://127.0.0.1:4180/ping > /dev/null 2>&1; do
   sleep 1
 done
 
-# install openclaw from latest stable tag
-echo -e "\n${GREEN}Cloning OpenClaw ...${NC}"
-git clone https://github.com/openclaw/openclaw.git $HOME/openclaw
+# install openclaw from pinned tag
+OPENCLAW_TAG="v2026.2.22"
+echo -e "\n${GREEN}Cloning OpenClaw (${OPENCLAW_TAG}) ...${NC}"
+git clone --branch "$OPENCLAW_TAG" --depth 1 https://github.com/openclaw/openclaw.git $HOME/openclaw
 cd $HOME/openclaw
-LATEST_TAG=$(git describe --tags --abbrev=0)
-echo -e "${GREEN}Checking out ${LATEST_TAG} ...${NC}"
-git checkout "$LATEST_TAG"
 echo -e "\n${GREEN}Building OpenClaw ...${NC}"
 pnpm install
 pnpm ui:build
 pnpm build
-npm link
+sudo npm link
 cd $HOME
 
 
@@ -165,13 +159,15 @@ openclaw onboard --non-interactive \
   --skip-skills \
   --accept-risk || true
 
+# extract gateway token for Caddyfile (must be before any config set, which redacts secrets)
+GATEWAY_TOKEN=$(python3 -c "import json; print(json.load(open('$HOME/.openclaw/openclaw.json'))['gateway']['auth']['token'])")
+
 # allow proxied UI connections without device pairing (OAuth handles auth)
 echo -e "\n${GREEN}Configuring gateway for reverse proxy ...${NC}"
 openclaw config set gateway.controlUi.allowInsecureAuth true
+openclaw config set gateway.controlUi.dangerouslyDisableDeviceAuth true
 openclaw config set gateway.trustedProxies --json '["127.0.0.1"]'
-
-# extract gateway token for Caddyfile
-GATEWAY_TOKEN=$(python3 -c "import json; print(json.load(open('$HOME/.openclaw/openclaw.json'))['gateway']['auth']['token'])")
+mkdir -p $HOME/.openclaw/credentials
 
 # restore cached certs from bucket (if available)
 echo -e "\n${GREEN}Restoring cached certificates ...${NC}"

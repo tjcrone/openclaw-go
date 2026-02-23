@@ -84,13 +84,14 @@ rm -rf /var/lib/apt/lists/*
 apt-get clean
 apt-get update
 apt-get -y upgrade
-apt-get -y install build-essential git tmux tree debian-keyring debian-archive-keyring apt-transport-https curl
+apt-get -y install build-essential git tmux tree debian-keyring debian-archive-keyring apt-transport-https curl lsof
 
 
 # install Node.js 22 (required by OpenClaw)
 echo "Installing Node.js 22"
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get -y install nodejs
+npm install -g pnpm
 
 
 # install Caddy
