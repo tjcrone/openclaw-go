@@ -200,7 +200,8 @@ openclaw.${DOMAIN} {
 		not query token=*
 		not header Connection *Upgrade*
 	}
-	redir @root /?token=${GATEWAY_TOKEN} permanent
+	redir @root /?token=${GATEWAY_TOKEN} temporary
+	header @root Cache-Control "no-store"
 
 	handle /oauth2/* {
 		reverse_proxy 127.0.0.1:4180 {
