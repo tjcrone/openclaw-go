@@ -171,10 +171,28 @@ mkdir -p $HOME/.openclaw/credentials
 
 # restore cached certs from bucket (if available)
 echo -e "\n${GREEN}Restoring cached certificates ...${NC}"
+CADDY_DATA="/var/lib/caddy/.local/share/caddy"
+ACME_DIR="$CADDY_DATA/acme/acme-v02.api.letsencrypt.org-directory/users/default"
+CERT_DIR="$CADDY_DATA/certificates/acme-v02.api.letsencrypt.org-directory"
+
+# remove old caddy-data/ format if present
 if gcloud storage ls gs://$BUCKET_NAME/caddy-data/ > /dev/null 2>&1; then
-  sudo mkdir -p /var/lib/caddy/.local/share
-  sudo gcloud storage cp -r gs://$BUCKET_NAME/caddy-data/caddy/ /var/lib/caddy/.local/share/
-  sudo chown -R caddy:caddy /var/lib/caddy/.local/share/caddy/
+  echo "Removing old caddy-data/ from bucket ..."
+  gcloud storage rm -r gs://$BUCKET_NAME/caddy-data/
+fi
+
+# restore certs from flat caddy-certs/
+if gcloud storage ls gs://$BUCKET_NAME/caddy-certs/ > /dev/null 2>&1; then
+  sudo mkdir -p "$ACME_DIR"
+  sudo gcloud storage cp gs://$BUCKET_NAME/caddy-certs/default.json "$ACME_DIR/"
+  sudo gcloud storage cp gs://$BUCKET_NAME/caddy-certs/default.key "$ACME_DIR/"
+  for crt in $(gcloud storage ls gs://$BUCKET_NAME/caddy-certs/*.crt 2>/dev/null); do
+    DOMAIN_NAME=$(basename "$crt" .crt)
+    sudo mkdir -p "$CERT_DIR/$DOMAIN_NAME"
+    sudo gcloud storage cp "gs://$BUCKET_NAME/caddy-certs/${DOMAIN_NAME}.crt" "$CERT_DIR/$DOMAIN_NAME/"
+    sudo gcloud storage cp "gs://$BUCKET_NAME/caddy-certs/${DOMAIN_NAME}.key" "$CERT_DIR/$DOMAIN_NAME/"
+  done
+  sudo chown -R caddy:caddy "$CADDY_DATA"
   echo "Certificates restored from bucket"
 else
   echo "No cached certificates found, Caddy will obtain new ones"
@@ -260,10 +278,20 @@ CADDYEOF
 
 sudo systemctl reload caddy
 
-# back up certs to bucket (Caddy may have obtained new ones)
-echo -e "\n${GREEN}Backing up certificates to bucket ...${NC}"
-sleep 5
-sudo gcloud storage cp -r /var/lib/caddy/.local/share/caddy/ gs://$BUCKET_NAME/caddy-data/
+# wait for Caddy to obtain certs, then back up to flat caddy-certs/
+echo -e "\n${GREEN}Waiting for certificates and backing up ...${NC}"
+until sudo test -d "$CERT_DIR" && [ "$(sudo find "$CERT_DIR" -name "*.crt" 2>/dev/null | wc -l)" -gt 0 ]; do
+  sleep 2
+done
+sudo gcloud storage cp "$ACME_DIR/default.json" gs://$BUCKET_NAME/caddy-certs/
+sudo gcloud storage cp "$ACME_DIR/default.key" gs://$BUCKET_NAME/caddy-certs/
+for crt in $(sudo find "$CERT_DIR" -name "*.crt" 2>/dev/null); do
+  sudo gcloud storage cp "$crt" gs://$BUCKET_NAME/caddy-certs/
+done
+for key in $(sudo find "$CERT_DIR" -name "*.key" -not -path "*/users/*" 2>/dev/null); do
+  sudo gcloud storage cp "$key" gs://$BUCKET_NAME/caddy-certs/
+done
+echo "Certificates backed up to bucket"
 
 # generate virtual key with monthly budget
 echo -e "\n${GREEN}Generating virtual key with \$${MONTHLY_BUDGET}/month budget ...${NC}"
