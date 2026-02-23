@@ -152,10 +152,19 @@ until curl -s http://127.0.0.1:4180/ping > /dev/null 2>&1; do
   sleep 1
 done
 
-# install openclaw
-echo -e "\n${GREEN}Installing OpenClaw ...${NC}"
-npm install -g openclaw@2026.2.15
-export PATH="$(dirname $(which node)):$PATH"
+# install openclaw from latest stable tag
+echo -e "\n${GREEN}Cloning OpenClaw ...${NC}"
+git clone https://github.com/openclaw/openclaw.git $HOME/openclaw
+cd $HOME/openclaw
+LATEST_TAG=$(git describe --tags --abbrev=0)
+echo -e "${GREEN}Checking out ${LATEST_TAG} ...${NC}"
+git checkout "$LATEST_TAG"
+echo -e "\n${GREEN}Building OpenClaw ...${NC}"
+pnpm install
+pnpm ui:build
+pnpm build
+npm link
+cd $HOME
 
 
 # run the onboarding wizard
@@ -177,7 +186,7 @@ openclaw config set gateway.controlUi.allowInsecureAuth true
 openclaw config set gateway.trustedProxies --json '["127.0.0.1"]'
 
 # extract gateway token for Caddyfile
-GATEWAY_TOKEN=$(openclaw config get gateway --json | python3 -c "import sys,json; print(json.load(sys.stdin)['auth']['token'])")
+GATEWAY_TOKEN=$(python3 -c "import json; print(json.load(open('$HOME/.openclaw/openclaw.json'))['gateway']['auth']['token'])")
 
 # restore cached certs from bucket (if available)
 echo -e "\n${GREEN}Restoring cached certificates ...${NC}"
@@ -324,7 +333,9 @@ openclaw config set agents.defaults --json '{
   },
   heartbeat: {model: "litellm/heartbeat"},
   maxConcurrent: 4,
-  subagents: {maxConcurrent: 8, model: "litellm/coder"}
+  subagents: {maxConcurrent: 8, model: "litellm/coder"},
+  compaction: {memoryFlush: {enabled: true}},
+  memorySearch: {experimental: {sessionMemory: true}, sources: ["memory", "sessions"]}
 }'
 
 
