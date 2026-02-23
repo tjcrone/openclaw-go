@@ -320,7 +320,16 @@ openclaw config set agents.defaults --json '{
   maxConcurrent: 4,
   subagents: {maxConcurrent: 8, model: "litellm/coder"},
   compaction: {memoryFlush: {enabled: true}},
-  memorySearch: {experimental: {sessionMemory: true}, sources: ["memory", "sessions"]}
+  memorySearch: {
+    provider: "openai",
+    model: "hf:nomic-ai/nomic-embed-text-v1.5",
+    remote: {
+      baseUrl: "https://api.synthetic.new/openai/v1/",
+      apiKey: "'$SYNTHETIC_API_KEY'"
+    },
+    experimental: {sessionMemory: true},
+    sources: ["memory", "sessions"]
+  }
 }'
 
 
