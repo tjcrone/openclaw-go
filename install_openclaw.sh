@@ -1,7 +1,7 @@
 #!/bin/bash
 # This is to be run once on new OpenClaw instances by the
-# user on first login. This installs NVM and runs the
-# OpenClaw installation script.
+# user on first login. This installs OpenClaw and its
+# dependencies and configures the system.
 
 set -e
 
@@ -20,21 +20,6 @@ NC='\e[0m' # reset color
 echo -e "\n${GREEN}Installing miniforge ...${NC}"
 curl -L https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh -o install.sh && bash install.sh -b && rm install.sh
 ${HOME}/miniforge3/bin/conda init
-
-# install nvm (Node Version Manager)
-echo -e "\n${GREEN}Installing nvm ...${NC}"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-source "$NVM_DIR/nvm.sh" # load nvm
-source "$NVM_DIR/bash_completion" # load nvm bash_completion
-
-# install Node.js 22 (required by OpenClaw)
-echo -e "\n${GREEN}Installing node ...${NC}"
-nvm install 22
-nvm use 22
-
-# upgrade npm
-npm install -g npm@11.9.0
 
 # install pnpm (recommended by OpenClaw)
 echo -e "\n${GREEN}Installing pnpm ...${NC}"

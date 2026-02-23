@@ -87,6 +87,12 @@ apt-get -y upgrade
 apt-get -y install build-essential git tmux tree debian-keyring debian-archive-keyring apt-transport-https curl
 
 
+# install Node.js 22 (required by OpenClaw)
+echo "Installing Node.js 22"
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt-get -y install nodejs
+
+
 # install Caddy
 echo "Installing Caddy"
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
