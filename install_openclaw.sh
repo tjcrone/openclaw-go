@@ -102,6 +102,7 @@ docker run -d \
   -e DATABASE_URL=$DATABASE_URL \
   -e UI_USERNAME=openclaw \
   -e UI_PASSWORD=openclaw2026 \
+  -e PROXY_BASE_URL=https://litellm.${DOMAIN} \
   -v ~/.config/litellm/litellm_config.yaml:/app/config.yaml \
   -p 127.0.0.1:4000:4000 \
   ghcr.io/berriai/litellm:main-latest \
@@ -257,7 +258,11 @@ litellm.${DOMAIN} {
 				redir * /oauth2/sign_in?rd={scheme}://{host}{uri}
 			}
 		}
-		reverse_proxy 127.0.0.1:4000
+		reverse_proxy 127.0.0.1:4000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_down Location "http://litellm.${DOMAIN}" "https://litellm.${DOMAIN}"
+		}
 	}
 }
 CADDYEOF
