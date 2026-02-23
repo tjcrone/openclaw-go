@@ -34,7 +34,18 @@ sudo -u $USERNAME mkdir -p $HOME_DIR/.config/oauth2-proxy
 gcloud storage cp gs://$BUCKET_NAME/oauth2-proxy.env $HOME_DIR/.config/oauth2-proxy/.env
 
 
-# note: deploy files are left in the bucket (caddy-data/ certs live there too)
+# clean up downloaded files from bucket (leaves caddy-certs/ intact)
+echo "Cleaning up bucket"
+gcloud storage rm gs://$BUCKET_NAME/install_openclaw.sh
+gcloud storage rm gs://$BUCKET_NAME/.bashrc
+gcloud storage rm gs://$BUCKET_NAME/.vimrc
+gcloud storage rm gs://$BUCKET_NAME/.tmux.conf
+gcloud storage rm gs://$BUCKET_NAME/litellm.env
+gcloud storage rm gs://$BUCKET_NAME/litellm_config.yaml
+gcloud storage rm gs://$BUCKET_NAME/ghostty.terminfo
+gcloud storage rm gs://$BUCKET_NAME/settings.conf
+gcloud storage rm gs://$BUCKET_NAME/oauth2-proxy.env
+gcloud storage rm gs://$BUCKET_NAME/setup_instance.sh
 
 
 # fix permissions
